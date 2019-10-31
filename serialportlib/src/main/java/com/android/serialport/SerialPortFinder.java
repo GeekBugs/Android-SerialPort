@@ -27,7 +27,7 @@ public class SerialPortFinder {
     }
 
     /**
-     * 获取 Drivers
+     * get Drivers
      *
      * @return Drivers
      * @throws IOException IOException
@@ -48,7 +48,7 @@ public class SerialPortFinder {
     }
 
     /**
-     * 获取串口
+     * get serialPort devices
      *
      * @return 串口
      */
