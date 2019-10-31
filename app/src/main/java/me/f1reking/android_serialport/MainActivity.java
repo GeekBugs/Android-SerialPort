@@ -1,4 +1,4 @@
-package com.mengbo.android_serialport;
+package me.f1reking.android_serialport;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
