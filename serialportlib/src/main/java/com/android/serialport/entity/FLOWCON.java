@@ -29,4 +29,8 @@ public enum FLOWCON {
     public int getFlowCon() {
         return this.flowCon;
     }
+
+    public static int getFlowCon(FLOWCON flowcon) {
+        return flowcon.getFlowCon();
+    }
 }

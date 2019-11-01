@@ -52,6 +52,8 @@ public class SerialPortHelper extends SerialPort {
      */
     public boolean openSerialPort(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags) {
 
+        Log.i(TAG, String.format("openSerialPort: %s: %d,%d,%d,%d,%d,%d", device.getPath(), baudRate, stopBits, dataBits, parity, flowCon, flags));
+
         // 优先校验串口权限
         if (!device.canRead() || !device.canWrite()) {
             boolean chmod777 = chmod777(device);
@@ -60,7 +62,6 @@ public class SerialPortHelper extends SerialPort {
                 if (null != mIOpenSerialPortListener) {
                     mIOpenSerialPortListener.onFail(device, IOpenSerialPortListener.Status.NO_READ_WRITE_PERMISSION);
                 }
-                //callback
                 return false;
             }
         }
@@ -70,10 +71,11 @@ public class SerialPortHelper extends SerialPort {
             mFileInputStream = new FileInputStream(mFD);
             mFileOutputStream = new FileOutputStream(mFD);
             Log.i(TAG, device.getPath() + " : 串口已经打开");
-            // callback
             if (null != mIOpenSerialPortListener) {
                 mIOpenSerialPortListener.onSuccess(device);
             }
+            startSendThread();
+            startReceiverdThread();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,6 +94,8 @@ public class SerialPortHelper extends SerialPort {
             close();
             mFD = null;
         }
+        stopSendThread();
+        stopReceiverdThread();
 
         if (null != mFileInputStream) {
             try {

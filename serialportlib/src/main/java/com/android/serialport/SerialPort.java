@@ -15,7 +15,7 @@ import java.io.FileDescriptor;
 public class SerialPort {
 
     static {
-        System.loadLibrary("SerialPort");
+        System.loadLibrary("serialport");
     }
 
     /**

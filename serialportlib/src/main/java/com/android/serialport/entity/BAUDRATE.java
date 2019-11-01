@@ -48,4 +48,8 @@ public enum BAUDRATE {
     int getBaudrate() {
         return this.baudrate;
     }
+
+    public static int getBaudrate(BAUDRATE baudrate) {
+        return baudrate.getBaudrate();
+    }
 }

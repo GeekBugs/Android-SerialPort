@@ -26,4 +26,8 @@ public enum STOPB {
     public int getStopBit() {
         return this.stopBit;
     }
+
+    public static int getStopBit(STOPB stopb) {
+        return stopb.getStopBit();
+    }
 }

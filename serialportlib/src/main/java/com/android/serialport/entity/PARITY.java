@@ -29,4 +29,8 @@ public enum  PARITY {
     public int getParity() {
         return this.parity;
     }
+
+    public static int getParity(PARITY parity) {
+        return parity.getParity();
+    }
 }

@@ -33,4 +33,8 @@ public enum DATAB {
     public int getDataBit() {
         return this.dataBit;
     }
+
+    public static int getDataBit(DATAB datab) {
+        return datab.getDataBit();
+    }
 }

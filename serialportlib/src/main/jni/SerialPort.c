@@ -248,7 +248,7 @@ JNIEXPORT void JNICALL Java_com_android_serialport_SerialPort_close
     jclass SerialPortClass = (*env)->GetObjectClass(env, thiz);
     jclass FileDescriptorClass = (*env)->FindClass(env, "java/io/FileDescriptor");
 
-    jfieldID mFdID = (*env)->GetFieldID(env, SerialPortClass, "mFd", "Ljava/io/FileDescriptor;");
+    jfieldID mFdID = (*env)->GetFieldID(env, SerialPortClass, "mFD", "Ljava/io/FileDescriptor;");
     jfieldID descriptorID = (*env)->GetFieldID(env, FileDescriptorClass, "descriptor", "I");
 
     jobject mFd = (*env)->GetObjectField(env, thiz, mFdID);
