@@ -1,7 +1,10 @@
 package me.f1reking.serialportlib;
 
+import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.android.serialport.SerialPort;
 import com.android.serialport.entity.BAUDRATE;
 import com.android.serialport.entity.DATAB;
@@ -15,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import me.f1reking.serialportlib.listener.IOpenSerialPortListener;
 import me.f1reking.serialportlib.listener.ISerialPortDataListener;
+import me.f1reking.serialportlib.util.ByteUtils;
 
 /**
  * @author F1ReKing
@@ -30,7 +34,9 @@ public class SerialPortHelper extends SerialPort {
     private FileOutputStream mFileOutputStream;
     private IOpenSerialPortListener mIOpenSerialPortListener;
     private ISerialPortDataListener mISerialPortDataListener;
-    private HandlerThread mSendHandlerThread;
+    private HandlerThread mSendingHandlerThread;
+    private Handler mSendingHandler;
+    private SerialPortReceivedThread mSerialPortReceivedThread;
 
     /**
      * 打开串口
@@ -136,28 +142,61 @@ public class SerialPortHelper extends SerialPort {
      * 开启发送消息线程
      */
     private void startSendThread() {
+        mSendingHandlerThread = new HandlerThread("mSendingHandlerThread");
+        mSendingHandlerThread.start();
 
+        mSendingHandler = new Handler(mSendingHandlerThread.getLooper()) {
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                byte[] sendBytes = (byte[]) msg.obj;
+                if (null != mFileOutputStream && null != sendBytes && sendBytes.length > 0) {
+                    try {
+                        mFileOutputStream.write(sendBytes);
+                        if (null != mISerialPortDataListener) {
+                            mISerialPortDataListener.onDataSend(sendBytes);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
     }
 
     /**
      * 停止发送消息线程
      */
     private void stopSendThread() {
-
+        mSendingHandler = null;
+        if (null != mSendingHandlerThread) {
+            mSendingHandlerThread.interrupt();
+            mSendingHandlerThread.quit();
+            mSendingHandlerThread = null;
+        }
     }
 
     /**
      * 开启接收消息的线程
      */
     private void startReceiverdThread() {
-
+        mSerialPortReceivedThread = new SerialPortReceivedThread(mFileInputStream) {
+            @Override
+            public void onDataReceived(byte[] bytes) {
+                if (null != mISerialPortDataListener) {
+                    mISerialPortDataListener.onDataReceived(bytes);
+                }
+            }
+        };
+        mSerialPortReceivedThread.start();
     }
 
     /**
      * 停止接收消息的线程
      */
     private void stopReceiverdThread() {
-
+        if (null != mSerialPortReceivedThread) {
+            mSerialPortReceivedThread.release();
+        }
     }
 
     /**
@@ -167,7 +206,36 @@ public class SerialPortHelper extends SerialPort {
      * @return
      */
     public boolean sendBytes(byte[] bytes) {
+        if (null != mFD && null != mFileInputStream && null != mFileOutputStream) {
+            if (null != mSendingHandler) {
+                Message message = Message.obtain();
+                message.obj = bytes;
+                return mSendingHandler.sendMessage(message);
+            }
+        }
         return false;
+    }
+
+    /**
+     * 发送Hex
+     *
+     * @param hex
+     * @return
+     */
+    public void sendHex(String hex) {
+        byte[] hexArray = ByteUtils.hexToByteArr(hex);
+        sendBytes(hexArray);
+    }
+
+    /**
+     * 发送文本
+     *
+     * @param txt
+     * @return
+     */
+    public void sendTxt(String txt) {
+        byte[] txtArray = txt.getBytes();
+        sendBytes(txtArray);
     }
 
     public void setIOpenSerialPortListener(IOpenSerialPortListener IOpenSerialPortListener) {
