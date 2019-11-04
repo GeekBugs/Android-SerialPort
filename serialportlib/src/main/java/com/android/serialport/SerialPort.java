@@ -29,10 +29,10 @@ public class SerialPort {
      * @param flags O_RDWR  读写方式打开 | O_NOCTTY  不允许进程管理串口 | O_NDELAY   非阻塞
      * @return
      */
-    protected native static FileDescriptor open(String path, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags);
+    public static native FileDescriptor open(String path, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags);
 
     /**
      * 关闭串口
      */
-    public native void close();
+    public static native void close();
 }

@@ -25,7 +25,7 @@ import me.f1reking.serialportlib.util.ByteUtils;
  * @date 2019/11/1 09:38
  * @Description
  */
-public class SerialPortHelper extends SerialPort {
+public class SerialPortHelper {
 
     private static final String TAG = SerialPortHelper.class.getSimpleName();
 
@@ -37,6 +37,124 @@ public class SerialPortHelper extends SerialPort {
     private HandlerThread mSendingHandlerThread;
     private Handler mSendingHandler;
     private SerialPortReceivedThread mSerialPortReceivedThread;
+
+    private String mPort = "/dev/ttyUSB0"; //串口设置默认值
+    private static int mBaudRate = 115200; //波特率默认值
+    private static int mStopBits = 2; //停止位默认值
+    private static int mDataBits = 8; //数据位默认值
+    private static int mParity = 0; //校验位默认值
+    private static int mFlowCon = 0; //流控默认值
+    private static int mFlags = 0;
+
+    /**
+     * 打开串口
+     *
+     * @return
+     */
+    public boolean open() {
+        return openSerialPort(new File(mPort), mBaudRate, mStopBits, mDataBits, mParity, mFlowCon, mFlags);
+    }
+
+    /**
+     * 关闭串口
+     */
+    public void close() {
+        closeSerialPort();
+    }
+
+    public static class Builder {
+        private String mPort = "/dev/ttyUSB0"; //串口设置默认值
+
+        public Builder(String port, int baudRate) {
+            mPort = port;
+            mBaudRate = baudRate;
+        }
+
+        public Builder setStopBits(int stopBits) {
+            mStopBits = stopBits;
+            return this;
+        }
+
+        public Builder setDataBits(int dataBits) {
+            mDataBits = dataBits;
+            return this;
+        }
+
+        public Builder setParity(int parity) {
+            mParity = parity;
+            return this;
+        }
+
+        public Builder setFlowCon(int flowCon) {
+            mFlowCon = flowCon;
+            return this;
+        }
+
+        public Builder setFlags(int flags) {
+            mFlags = flags;
+            return this;
+        }
+
+        public SerialPortHelper build() {
+            return new SerialPortHelper();
+        }
+
+    }
+
+    /**
+     * 发送数据
+     *
+     * @param bytes
+     * @return
+     */
+    public boolean sendBytes(byte[] bytes) {
+        if (null != mFD && null != mFileInputStream && null != mFileOutputStream) {
+            if (null != mSendingHandler) {
+                Message message = Message.obtain();
+                message.obj = bytes;
+                return mSendingHandler.sendMessage(message);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 发送Hex
+     *
+     * @param hex
+     * @return
+     */
+    public void sendHex(String hex) {
+        byte[] hexArray = ByteUtils.hexToByteArr(hex);
+        sendBytes(hexArray);
+    }
+
+    /**
+     * 发送文本
+     *
+     * @param txt
+     * @return
+     */
+    public void sendTxt(String txt) {
+        byte[] txtArray = txt.getBytes();
+        sendBytes(txtArray);
+    }
+
+    /**
+     * 设置串口打开的监听
+     * @param IOpenSerialPortListener
+     */
+    public void setIOpenSerialPortListener(IOpenSerialPortListener IOpenSerialPortListener) {
+        mIOpenSerialPortListener = IOpenSerialPortListener;
+    }
+
+    /**
+     * 设置串口数据收发的监听
+     * @param ISerialPortDataListener
+     */
+    public void setISerialPortDataListener(ISerialPortDataListener ISerialPortDataListener) {
+        mISerialPortDataListener = ISerialPortDataListener;
+    }
 
     /**
      * 打开串口
@@ -50,7 +168,7 @@ public class SerialPortHelper extends SerialPort {
      * @param flags O_RDWR  读写方式打开 | O_NOCTTY  不允许进程管理串口 | O_NDELAY   非阻塞
      * @return
      */
-    public boolean openSerialPort(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags) {
+    private boolean openSerialPort(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags) {
 
         Log.i(TAG, String.format("openSerialPort: %s: %d,%d,%d,%d,%d,%d", device.getPath(), baudRate, stopBits, dataBits, parity, flowCon, flags));
 
@@ -67,7 +185,7 @@ public class SerialPortHelper extends SerialPort {
         }
 
         try {
-            mFD = open(device.getAbsolutePath(), baudRate, stopBits, dataBits, parity, flowCon, flags);
+            mFD = SerialPort.open(mPort, mBaudRate, mStopBits, mDataBits, mParity, mFlowCon, mFlags);
             mFileInputStream = new FileInputStream(mFD);
             mFileOutputStream = new FileOutputStream(mFD);
             Log.i(TAG, device.getPath() + " : 串口已经打开");
@@ -75,7 +193,7 @@ public class SerialPortHelper extends SerialPort {
                 mIOpenSerialPortListener.onSuccess(device);
             }
             startSendThread();
-            startReceiverdThread();
+            startReceivedThread();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,13 +207,13 @@ public class SerialPortHelper extends SerialPort {
     /**
      * 关闭串口
      */
-    public void closeSerialPort() {
+    private void closeSerialPort() {
         if (null != mFD) {
-            close();
+            SerialPort.close();
             mFD = null;
         }
         stopSendThread();
-        stopReceiverdThread();
+        stopReceivedThread();
 
         if (null != mFileInputStream) {
             try {
@@ -182,7 +300,7 @@ public class SerialPortHelper extends SerialPort {
     /**
      * 开启接收消息的线程
      */
-    private void startReceiverdThread() {
+    private void startReceivedThread() {
         mSerialPortReceivedThread = new SerialPortReceivedThread(mFileInputStream) {
             @Override
             public void onDataReceived(byte[] bytes) {
@@ -197,56 +315,10 @@ public class SerialPortHelper extends SerialPort {
     /**
      * 停止接收消息的线程
      */
-    private void stopReceiverdThread() {
+    private void stopReceivedThread() {
         if (null != mSerialPortReceivedThread) {
             mSerialPortReceivedThread.release();
         }
     }
 
-    /**
-     * 发送数据
-     *
-     * @param bytes
-     * @return
-     */
-    public boolean sendBytes(byte[] bytes) {
-        if (null != mFD && null != mFileInputStream && null != mFileOutputStream) {
-            if (null != mSendingHandler) {
-                Message message = Message.obtain();
-                message.obj = bytes;
-                return mSendingHandler.sendMessage(message);
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 发送Hex
-     *
-     * @param hex
-     * @return
-     */
-    public void sendHex(String hex) {
-        byte[] hexArray = ByteUtils.hexToByteArr(hex);
-        sendBytes(hexArray);
-    }
-
-    /**
-     * 发送文本
-     *
-     * @param txt
-     * @return
-     */
-    public void sendTxt(String txt) {
-        byte[] txtArray = txt.getBytes();
-        sendBytes(txtArray);
-    }
-
-    public void setIOpenSerialPortListener(IOpenSerialPortListener IOpenSerialPortListener) {
-        mIOpenSerialPortListener = IOpenSerialPortListener;
-    }
-
-    public void setISerialPortDataListener(ISerialPortDataListener ISerialPortDataListener) {
-        mISerialPortDataListener = ISerialPortDataListener;
-    }
 }

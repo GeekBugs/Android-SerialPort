@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void open() {
         if (mSerialPortHelper == null) {
-            mSerialPortHelper = new SerialPortHelper();
+            mSerialPortHelper = new SerialPortHelper.Builder("/dev/ttyUSB0", BAUDRATE.getBaudrate(BAUDRATE.B115200)).setStopBits(STOPB.getStopBit(STOPB.B2)).setDataBits(DATAB.getDataBit(DATAB.CS8)).setParity(PARITY.getParity(PARITY.NONE)).setFlowCon(FLOWCON.getFlowCon(FLOWCON.NONE)).build();
         }
         mSerialPortHelper.setIOpenSerialPortListener(new IOpenSerialPortListener() {
             @Override
@@ -99,12 +99,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "onDataSend: " + Arrays.toString(bytes));
             }
         });
-        mSerialPortHelper.openSerialPort(new File("/dev/ttyUSB0"), BAUDRATE.getBaudrate(BAUDRATE.B115200), STOPB.getStopBit(STOPB.B2), DATAB.getDataBit(DATAB.CS8), PARITY.getParity(PARITY.NONE), FLOWCON.getFlowCon(FLOWCON.NONE), 0);
+        mSerialPortHelper.open();
     }
 
     private void close() {
         if (mSerialPortHelper != null) {
-            mSerialPortHelper.closeSerialPort();
+            mSerialPortHelper.close();
         }
     }
 
