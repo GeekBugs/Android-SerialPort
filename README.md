@@ -22,7 +22,7 @@ Add it in your root build.gradle at the end of repositories:
 
 
 	dependencies {
-	        implementation 'com.github.F1ReKing:Android-SerialPort:1.0'
+	        implementation 'com.github.F1ReKing:Android-SerialPort:1.1'
 	}
 
 
@@ -31,34 +31,44 @@ Add it in your root build.gradle at the end of repositories:
 ### 1. 查询串口列表
 
 ```java
-SerialPortFinder.getDrivers();
+SerialPortFinder#getDrivers();
 ```
 
-### 2. 打开串口
+### 2. 配置串口参数
 
 ```java
-SerialPortHelper.openSerialPort(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags);
+SerialPortHelper#Builder(String port, int baudRate).build(); //支持配置串口号，波特率（默认值115200）
+setStopBits(int stopBits); // 支持设置停止位 默认值为2
+setDataBits(int dataBits); // 支持设置数据位 默认值为8
+setParity(int parity); // 支持设置检验位 默认值为0
+setFlowCon(int flowCon); // 支持设置流控 默认值为0
+setFlags(int flags); // 支持设置标志 默认值为0，O_RDWR  读写方式打开
 ```
 
-### 3. 关闭串口
+### 3. 打开串口
 
 ```java
-SerialPortHelper.closeSerialPort();
+SerialPortHelper#open();
+```
+
+### 4. 关闭串口
+
+```java
+SerialPortHelper#close();
 ```
 
 ### 4. 发送数据
 
 ```java
-SerialPortHelper.sendBytes(byte[] bytes); // 支持发送byte[]
-SerialPortHelper.sendHex(String hex); // 支持发送Hex
-SerialPortHelper.sendTxt(String txt); // 支持发送ASCII码
+SerialPortHelper#sendBytes(byte[] bytes); // 支持发送byte[]
+SerialPortHelper#sendHex(String hex); // 支持发送Hex
+SerialPortHelper#sendTxt(String txt); // 支持发送ASCII码
 ```
 
 ### 5. 接收数据
 
 ```java
 public interface ISerialPortDataListener {
-	
 	// 接收数据回调
     void onDataReceived(byte[] bytes);
    	// 发送数据回调
@@ -79,6 +89,11 @@ void setISerialPortDataListener(ISerialPortDataListener ISerialPortDataListener)
 
 
 ## 版本更新记录
+
+### 1.1
+
+- 优化api
+- 支持设置可选参数，并配置默认值
 
 ### 1.0
 
