@@ -22,7 +22,7 @@ Add it in your root build.gradle at the end of repositories:
 
 
 	dependencies {
-	        implementation 'com.github.F1ReKing:Android-SerialPort:1.1'
+	        implementation 'com.github.F1ReKing:Android-SerialPort:1.2.1'
 	}
 
 
@@ -31,7 +31,9 @@ Add it in your root build.gradle at the end of repositories:
 ### 1. 查询串口列表
 
 ```java
-SerialPortFinder#getDrivers();
+SerialPortHelper#getAllDevices();
+// 查询串口设备地址列表
+SerialPortHelper#getAllDeicesPath();
 ```
 
 ### 2. 配置串口参数
