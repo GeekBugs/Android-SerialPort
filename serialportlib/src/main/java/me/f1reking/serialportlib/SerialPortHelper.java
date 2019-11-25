@@ -55,7 +55,7 @@ public class SerialPortHelper {
      *
      * @return 所有串口设备的地址
      */
-    public List<String> getAllDeicesPath() {
+    public String[] getAllDeicesPath() {
         if (mSerialPortFinder == null) {
             mSerialPortFinder = new SerialPortFinder();
         }
