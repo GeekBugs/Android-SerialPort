@@ -8,7 +8,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * @author F1ReKing
@@ -86,20 +88,22 @@ public class SerialPortFinder {
      *
      * @return serialPort path
      */
-    public List<String> getAllDeicesPath() {
-        List<String> paths = new ArrayList<>();
+    public String[] getAllDeicesPath() {
+        Vector<String> paths = new Vector<>();
+        Iterator<Driver> drivers;
         try {
-            List<Driver> drivers = getDrivers();
-            for (Driver driver : drivers) {
-                List<File> driverDevices = driver.getDevices();
-                for (File file : driverDevices) {
-                    String devicesPaths = file.getAbsolutePath();
+            drivers = getDrivers().iterator();
+            while (drivers.hasNext()) {
+                Driver driver = drivers.next();
+                Iterator<File> files = driver.getDevices().iterator();
+                while (files.hasNext()) {
+                    String devicesPaths = files.next().getAbsolutePath();
                     paths.add(devicesPaths);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return paths;
+        return paths.toArray(new String[paths.size()]);
     }
 }
