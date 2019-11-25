@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author F1ReKing
@@ -48,17 +49,27 @@ public class SerialPortFinder {
     }
 
     /**
+     * Use {@link #getAllDevices()} instead.
+     *
+     * @return serialPort
+     */
+    @Deprecated
+    public ArrayList<Device> getDevices() {
+        return (ArrayList<Device>) getAllDevices();
+    }
+
+    /**
      * get serialPort devices
      *
-     * @return 串口
+     * @return serialPort
      */
-    public ArrayList<Device> getDevices() {
-        ArrayList<Device> devices = new ArrayList<>();
+    public List<Device> getAllDevices() {
+        List<Device> devices = new ArrayList<>();
         try {
-            ArrayList<Driver> drivers = getDrivers();
+            List<Driver> drivers = getDrivers();
             for (Driver driver : drivers) {
                 String driverName = driver.getName();
-                ArrayList<File> driverDevices = driver.getDevices();
+                List<File> driverDevices = driver.getDevices();
                 for (File file : driverDevices) {
                     String devicesName = file.getName();
                     devices.add(new Device(devicesName, driverName, file));
@@ -68,5 +79,27 @@ public class SerialPortFinder {
             e.printStackTrace();
         }
         return devices;
+    }
+
+    /**
+     * get serialPort devices path
+     *
+     * @return serialPort path
+     */
+    public List<String> getAllDeicesPath() {
+        List<String> paths = new ArrayList<>();
+        try {
+            List<Driver> drivers = getDrivers();
+            for (Driver driver : drivers) {
+                List<File> driverDevices = driver.getDevices();
+                for (File file : driverDevices) {
+                    String devicesPaths = file.getAbsolutePath();
+                    paths.add(devicesPaths);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return paths;
     }
 }

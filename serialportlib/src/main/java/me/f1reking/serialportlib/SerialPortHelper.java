@@ -6,8 +6,10 @@ import android.os.Message;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import com.android.serialport.SerialPort;
+import com.android.serialport.SerialPortFinder;
 import com.android.serialport.entity.BAUDRATE;
 import com.android.serialport.entity.DATAB;
+import com.android.serialport.entity.Device;
 import com.android.serialport.entity.FLOWCON;
 import com.android.serialport.entity.PARITY;
 import com.android.serialport.entity.STOPB;
@@ -16,6 +18,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import me.f1reking.serialportlib.listener.IOpenSerialPortListener;
 import me.f1reking.serialportlib.listener.ISerialPortDataListener;
 import me.f1reking.serialportlib.util.ByteUtils;
@@ -37,6 +40,7 @@ public class SerialPortHelper {
     private HandlerThread mSendingHandlerThread;
     private Handler mSendingHandler;
     private SerialPortReceivedThread mSerialPortReceivedThread;
+    private SerialPortFinder mSerialPortFinder;
 
     private String mPort = "/dev/ttyUSB0"; //串口设置默认值
     private static int mBaudRate = 115200; //波特率默认值
@@ -45,6 +49,30 @@ public class SerialPortHelper {
     private static int mParity = 0; //校验位默认值
     private static int mFlowCon = 0; //流控默认值
     private static int mFlags = 0;
+
+    /**
+     * 获得所有串口设备的地址
+     *
+     * @return 所有串口设备的地址
+     */
+    public List<String> getAllDeicesPath() {
+        if (mSerialPortFinder == null) {
+            mSerialPortFinder = new SerialPortFinder();
+        }
+        return mSerialPortFinder.getAllDeicesPath();
+    }
+
+    /**
+     * 获取所有串口设备
+     *
+     * @return 所有串口设备
+     */
+    public List<Device> getAllDevices() {
+        if (mSerialPortFinder == null) {
+            mSerialPortFinder = new SerialPortFinder();
+        }
+        return mSerialPortFinder.getAllDevices();
+    }
 
     /**
      * 打开串口
@@ -142,6 +170,7 @@ public class SerialPortHelper {
 
     /**
      * 设置串口打开的监听
+     *
      * @param IOpenSerialPortListener
      */
     public void setIOpenSerialPortListener(IOpenSerialPortListener IOpenSerialPortListener) {
@@ -150,6 +179,7 @@ public class SerialPortHelper {
 
     /**
      * 设置串口数据收发的监听
+     *
      * @param ISerialPortDataListener
      */
     public void setISerialPortDataListener(ISerialPortDataListener ISerialPortDataListener) {
