@@ -3,6 +3,10 @@
 
 [![](https://jitpack.io/v/F1ReKing/Android-SerialPort.svg)](https://jitpack.io/#F1ReKing/Android-SerialPort)
 
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/F1ReKing/Android-SerialPort.svg)](https://starchart.cc/F1ReKing/Android-SerialPort)
+
 ## 引入
 
 **Step 1.** Add the JitPack repository to your build file
