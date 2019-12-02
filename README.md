@@ -2,6 +2,7 @@
 此项目移植于谷歌官方串口库[android-serialport-api](https://code.google.com/archive/p/android-serialport-api/),但该项目仅支持串口名称及波特率，所以在项目的基础上添加支持数据位、数据位、停止位、流控等配置。
 
 [![](https://jitpack.io/v/F1ReKing/Android-SerialPort.svg)](https://jitpack.io/#F1ReKing/Android-SerialPort)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/F1ReKing/Android-SerialPort/blob/master/LICENSE)
 
 ## Stargazers over time
 
@@ -26,7 +27,7 @@ Add it in your root build.gradle at the end of repositories:
 
 
 	dependencies {
-	        implementation 'com.github.F1ReKing:Android-SerialPort:1.2.2'
+	        implementation 'com.github.F1ReKing:Android-SerialPort:1.3.0'
 	}
 
 
