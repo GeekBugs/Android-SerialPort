@@ -73,7 +73,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void open() {
         if (mSerialPortHelper == null) {
-            mSerialPortHelper = new SerialPortHelper.Builder("/dev/ttyUSB0", BAUDRATE.getBaudrate(BAUDRATE.B115200)).setStopBits(STOPB.getStopBit(STOPB.B2)).setDataBits(DATAB.getDataBit(DATAB.CS8)).setParity(PARITY.getParity(PARITY.NONE)).setFlowCon(FLOWCON.getFlowCon(FLOWCON.NONE)).build();
+            mSerialPortHelper = new SerialPortHelper();
+            mSerialPortHelper.setPort("/dev/ttyUSB0");
+            mSerialPortHelper.setBaudRate(BAUDRATE.getBaudrate(BAUDRATE.B115200));
+            mSerialPortHelper.setStopBits(STOPB.getStopBit(STOPB.B2));
+            mSerialPortHelper.setDataBits(DATAB.getDataBit(DATAB.CS8));
+            mSerialPortHelper.setParity(PARITY.getParity(PARITY.NONE));
+            mSerialPortHelper.setFlowCon(FLOWCON.getFlowCon(FLOWCON.NONE));
         }
         mSerialPortHelper.setIOpenSerialPortListener(new IOpenSerialPortListener() {
             @Override

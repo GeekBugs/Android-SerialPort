@@ -57,13 +57,14 @@ public class SerialPortHelper {
     private SerialPortReceivedThread mSerialPortReceivedThread;
     private SerialPortFinder mSerialPortFinder;
 
-    private String mPort = "/dev/ttyUSB0"; //串口设置默认值
+    private static String mPort = "/dev/ttyUSB0"; //串口设置默认值
     private static int mBaudRate = 115200; //波特率默认值
     private static int mStopBits = 2; //停止位默认值
     private static int mDataBits = 8; //数据位默认值
     private static int mParity = 0; //校验位默认值
     private static int mFlowCon = 0; //流控默认值
     private static int mFlags = 0;
+    private boolean isOpen = false; //是否打开串口标志
 
     /**
      * 获得所有串口设备的地址
@@ -103,10 +104,94 @@ public class SerialPortHelper {
      */
     public void close() {
         closeSerialPort();
+        isOpen = false;
+    }
+
+    public boolean setPort(String port) {
+        if (isOpen) {
+            return false;
+        }
+        mPort = port;
+        return true;
+    }
+
+    public String getPort() {
+        return mPort;
+    }
+
+    public boolean setBaudRate(int baudRate) {
+        if (isOpen) {
+            return false;
+        }
+        mBaudRate = baudRate;
+        return true;
+    }
+
+    public int getBaudRate() {
+        return mBaudRate;
+    }
+
+    public boolean setDataBits(int dataBits) {
+        if (isOpen) {
+            return false;
+        }
+        mDataBits = dataBits;
+        return true;
+    }
+
+    public int getDataBits() {
+        return mDataBits;
+    }
+
+    public boolean setStopBits(int stopBits) {
+        if (isOpen) {
+            return false;
+        }
+        mStopBits = stopBits;
+        return true;
+    }
+
+    public int getStopBits() {
+        return mStopBits;
+    }
+
+    public boolean setParity(int parity) {
+        if (isOpen) {
+            return false;
+        }
+        mParity = parity;
+        return true;
+    }
+
+    public int getParity() {
+        return mParity;
+    }
+
+    public boolean setFlowCon(int flowCon) {
+        if (isOpen) {
+            return false;
+        }
+        mFlowCon = flowCon;
+        return true;
+    }
+
+    public int getFlowCon() {
+        return mFlowCon;
+    }
+
+    public boolean setFlags(int flags) {
+        if (isOpen) {
+            return false;
+        }
+        mFlags = flags;
+        return true;
+    }
+
+    public int getFlags() {
+        return mFlags;
     }
 
     public static class Builder {
-        private String mPort = "/dev/ttyUSB0"; //串口设置默认值
 
         public Builder(String port, int baudRate) {
             mPort = port;
@@ -225,6 +310,7 @@ public class SerialPortHelper {
                 if (null != mIOpenSerialPortListener) {
                     mIOpenSerialPortListener.onFail(device, IOpenSerialPortListener.Status.NO_READ_WRITE_PERMISSION);
                 }
+                isOpen = false;
                 return false;
             }
         }
@@ -239,6 +325,7 @@ public class SerialPortHelper {
             }
             startSendThread();
             startReceivedThread();
+            isOpen = true;
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -246,6 +333,7 @@ public class SerialPortHelper {
                 mIOpenSerialPortListener.onFail(device, IOpenSerialPortListener.Status.OPEN_FAIL);
             }
         }
+        isOpen = false;
         return false;
     }
 
