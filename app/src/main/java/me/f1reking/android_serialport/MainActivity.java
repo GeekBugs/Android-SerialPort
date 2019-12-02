@@ -33,6 +33,7 @@ import java.util.Arrays;
 import me.f1reking.serialportlib.SerialPortHelper;
 import me.f1reking.serialportlib.listener.IOpenSerialPortListener;
 import me.f1reking.serialportlib.listener.ISerialPortDataListener;
+import me.f1reking.serialportlib.listener.Status;
 
 /**
  * @author F1ReKing
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mSerialPortHelper.setParity(PARITY.getParity(PARITY.NONE));
             mSerialPortHelper.setFlowCon(FLOWCON.getFlowCon(FLOWCON.NONE));
         }
+        Log.i(TAG, "open: " + Arrays.toString(mSerialPortHelper.getAllDeicesPath()));
         mSerialPortHelper.setIOpenSerialPortListener(new IOpenSerialPortListener() {
             @Override
             public void onSuccess(final File device) {
@@ -121,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "onDataSend: " + Arrays.toString(bytes));
             }
         });
-        mSerialPortHelper.open();
+        Log.i(TAG, "open: " + mSerialPortHelper.open());
     }
 
     private void close() {
@@ -138,5 +140,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnOpen.setOnClickListener(MainActivity.this);
         btnClose = (Button) findViewById(R.id.btn_close);
         btnClose.setOnClickListener(MainActivity.this);
+
     }
 }

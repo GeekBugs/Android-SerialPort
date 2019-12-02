@@ -15,7 +15,6 @@
  */
 package me.f1reking.serialportlib;
 
-import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -50,7 +49,6 @@ public abstract class SerialPortReceivedThread extends Thread {
                 }
                 byte[] receivedBytes = new byte[size];
                 System.arraycopy(mReceivedBuffer, 0, receivedBytes, 0, size);
-                Log.i(TAG, "run: receiverBuffer = " + receivedBytes.toString());
                 onDataReceived(receivedBytes);
             } catch (IOException e) {
                 e.printStackTrace();

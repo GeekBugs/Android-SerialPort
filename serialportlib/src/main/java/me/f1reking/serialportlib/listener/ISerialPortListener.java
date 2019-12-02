@@ -16,15 +16,17 @@
 package me.f1reking.serialportlib.listener;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 /**
- * @author F1ReKing
- * @date 2019/11/1 10:49
- * @Description 串口打开状态监听
+ * @author HuangYH
+ * @date 2019/12/2 17:54
+ * @Description
  */
-public interface IOpenSerialPortListener {
+public interface ISerialPortListener {
 
-    void onSuccess(File device);
+    void onSuccess(File device, FileInputStream inputStream, FileOutputStream outputStream);
 
     void onFail(File device, Status status);
 }
