@@ -36,7 +36,7 @@ public class ByteUtils {
 
     public static byte[] hexToByteArr(String hex) {
         int hexLen = hex.length();
-        byte[] result = null;
+        byte[] result;
         if (isOdd(hexLen) == 1) {
             hexLen++;
             result = new byte[hexLen / 2];
@@ -45,7 +45,7 @@ public class ByteUtils {
             result = new byte[hexLen / 2];
         }
         int j = 0;
-        for (int i = 0; i < hexLen; i++) {
+        for (int i = 0; i < hexLen; i += 2) {
             result[j] = HexToByte(hex.substring(i, i + 2));
             j++;
         }
