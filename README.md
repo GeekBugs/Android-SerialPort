@@ -4,10 +4,6 @@
 [![](https://jitpack.io/v/F1ReKing/Android-SerialPort.svg)](https://jitpack.io/#F1ReKing/Android-SerialPort)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/F1ReKing/Android-SerialPort/blob/master/LICENSE)
 
-## Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/F1ReKing/Android-SerialPort.svg)](https://starchart.cc/F1ReKing/Android-SerialPort)
-
 ## 引入
 
 **Step 1.** Add the JitPack repository to your build file
@@ -27,7 +23,7 @@ Add it in your root build.gradle at the end of repositories:
 
 
 	dependencies {
-	        implementation 'com.github.F1ReKing:Android-SerialPort:1.3.2'
+	        implementation 'com.github.F1ReKing:Android-SerialPort:1.3.3'
 	}
 
 
@@ -123,3 +119,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/F1ReKing/Android-SerialPort.svg)](https://starchart.cc/F1ReKing/Android-SerialPort)
