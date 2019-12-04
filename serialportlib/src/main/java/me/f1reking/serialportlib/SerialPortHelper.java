@@ -56,7 +56,6 @@ public class SerialPortHelper {
     private Handler mSendingHandler;
     private SerialPortReceivedThread mSerialPortReceivedThread;
     private SerialPortFinder mSerialPortFinder;
-    // private SerialPort mSerialPort;
 
     private FileDescriptor mFD;
     private FileInputStream mFileInputStream;
@@ -98,7 +97,7 @@ public class SerialPortHelper {
     /**
      * 打开串口
      *
-     * @return
+     * @return 串口打开状态 true:打开 false：打开失败
      */
     public boolean open() {
         return openSerialPort(new File(mPort), mBaudRate, mStopBits, mDataBits, mParity, mFlowCon, mFlags);
@@ -244,10 +243,10 @@ public class SerialPortHelper {
     /**
      * 发送数据
      *
-     * @param bytes
-     * @return
+     * @param bytes 发送的字节
+     * @return 发送状态 true:发送成功 false：发送失败
      */
-    public boolean sendBytes(byte[] bytes) {
+    private boolean sendBytes(byte[] bytes) {
         if (null != mSendingHandler) {
             Message message = Message.obtain();
             message.obj = bytes;
@@ -259,8 +258,7 @@ public class SerialPortHelper {
     /**
      * 发送Hex
      *
-     * @param hex
-     * @return
+     * @param hex 16进制文本
      */
     public void sendHex(String hex) {
         byte[] hexArray = ByteUtils.hexToByteArr(hex);
@@ -270,8 +268,7 @@ public class SerialPortHelper {
     /**
      * 发送文本
      *
-     * @param txt
-     * @return
+     * @param txt 文本
      */
     public void sendTxt(String txt) {
         byte[] txtArray = txt.getBytes();
@@ -283,19 +280,19 @@ public class SerialPortHelper {
     /**
      * 设置串口打开的监听
      *
-     * @param IOpenSerialPortListener
+     * @param iOpenSerialPortListener 监听
      */
-    public void setIOpenSerialPortListener(IOpenSerialPortListener IOpenSerialPortListener) {
-        mIOpenSerialPortListener = IOpenSerialPortListener;
+    public void setIOpenSerialPortListener(IOpenSerialPortListener iOpenSerialPortListener) {
+        mIOpenSerialPortListener = iOpenSerialPortListener;
     }
 
     /**
      * 设置串口数据收发的监听
      *
-     * @param ISerialPortDataListener
+     * @param iSerialPortDataListener 监听
      */
-    public void setISerialPortDataListener(ISerialPortDataListener ISerialPortDataListener) {
-        mISerialPortDataListener = ISerialPortDataListener;
+    public void setISerialPortDataListener(ISerialPortDataListener iSerialPortDataListener) {
+        mISerialPortDataListener = iSerialPortDataListener;
     }
 
     /**
@@ -308,7 +305,7 @@ public class SerialPortHelper {
      * @param parity {@link PARITY} 校验位
      * @param flowCon {@link FLOWCON} 流控
      * @param flags O_RDWR  读写方式打开 | O_NOCTTY  不允许进程管理串口 | O_NDELAY   非阻塞
-     * @return
+     * @return 打开状态
      */
     private boolean openSerialPort(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags) {
         // mSerialPort = new SerialPort();
@@ -323,8 +320,6 @@ public class SerialPortHelper {
         stopSendThread();
         stopReceivedThread();
         closeSafe();
-        mIOpenSerialPortListener = null;
-        mISerialPortDataListener = null;
         isOpen = false;
     }
 
@@ -389,7 +384,7 @@ public class SerialPortHelper {
         }
     }
 
-    public boolean openSafe(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags) {
+    private boolean openSafe(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags) {
         Log.i(TAG, String.format("SerialPort: %s: %d,%d,%d,%d,%d,%d", device.getPath(), baudRate, stopBits, dataBits, parity, flowCon, flags));
         if (!device.canRead() || !device.canWrite()) {
             boolean chmod777 = chmod777(device);
@@ -421,7 +416,7 @@ public class SerialPortHelper {
         return false;
     }
 
-    public void closeSafe() {
+    private void closeSafe() {
         if (null != mFD) {
             nativeClose();
             mFD = null;
@@ -479,7 +474,7 @@ public class SerialPortHelper {
      * @param parity {@link PARITY} 校验位
      * @param flowCon {@link FLOWCON} 流控
      * @param flags O_RDWR  读写方式打开 | O_NOCTTY  不允许进程管理串口 | O_NDELAY   非阻塞
-     * @return
+     *
      */
     private static native FileDescriptor nativeOpen(String path, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags);
 
