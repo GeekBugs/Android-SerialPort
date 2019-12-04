@@ -13,20 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.f1reking.serialportlib.listener;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+package me.f1reking.serialportlib.entity;
 
 /**
- * @author HuangYH
- * @date 2019/12/2 17:54
- * @Description
+ * @author F1ReKing
+ * @date 2019/10/31 18:04
+ * @Description 串口停止位定义
  */
-public interface ISerialPortListener {
+public enum STOPB {
 
-    void onSuccess(File device, FileInputStream inputStream, FileOutputStream outputStream);
+    /**
+     * 1位停止位
+     */
+    B1(1),
 
-    void onFail(File device, Status status);
+    /**
+     * 2位停止位
+     */
+    B2(2);
+
+    int stopBit;
+
+    STOPB(int stopBit) {
+        this.stopBit = stopBit;
+    }
+
+    public int getStopBit() {
+        return this.stopBit;
+    }
+
+    public static int getStopBit(STOPB stopb) {
+        return stopb.getStopBit();
+    }
 }

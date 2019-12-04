@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.serialport;
+package me.f1reking.serialportlib;
 
 import android.util.Log;
-import com.android.serialport.entity.Device;
-import com.android.serialport.entity.Driver;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -26,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import me.f1reking.serialportlib.entity.Device;
+import me.f1reking.serialportlib.entity.Driver;
 
 /**
  * @author F1ReKing

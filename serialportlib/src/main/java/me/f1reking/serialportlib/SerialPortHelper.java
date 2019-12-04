@@ -18,25 +18,22 @@ package me.f1reking.serialportlib;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.util.Log;
 import androidx.annotation.NonNull;
-import com.android.serialport.SerialPort;
-import com.android.serialport.SerialPortFinder;
-import com.android.serialport.entity.BAUDRATE;
-import com.android.serialport.entity.DATAB;
-import com.android.serialport.entity.Device;
-import com.android.serialport.entity.FLOWCON;
-import com.android.serialport.entity.PARITY;
-import com.android.serialport.entity.STOPB;
+import me.f1reking.serialportlib.entity.BAUDRATE;
+import me.f1reking.serialportlib.entity.DATAB;
+import me.f1reking.serialportlib.entity.Device;
+import me.f1reking.serialportlib.entity.FLOWCON;
+import me.f1reking.serialportlib.entity.PARITY;
+import me.f1reking.serialportlib.entity.STOPB;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import me.f1reking.serialportlib.listener.IOpenSerialPortListener;
 import me.f1reking.serialportlib.listener.ISerialPortDataListener;
-import me.f1reking.serialportlib.listener.ISerialPortListener;
 import me.f1reking.serialportlib.listener.Status;
 import me.f1reking.serialportlib.util.ByteUtils;
 
@@ -49,15 +46,21 @@ public class SerialPortHelper {
 
     private static final String TAG = SerialPortHelper.class.getSimpleName();
 
-    private OutputStream mOutputStream;
-    private InputStream mInputStream;
+    static {
+        System.loadLibrary("serialport");
+    }
+
     private IOpenSerialPortListener mIOpenSerialPortListener;
     private ISerialPortDataListener mISerialPortDataListener;
     private HandlerThread mSendingHandlerThread;
     private Handler mSendingHandler;
     private SerialPortReceivedThread mSerialPortReceivedThread;
     private SerialPortFinder mSerialPortFinder;
-    private SerialPort mSerialPort;
+    // private SerialPort mSerialPort;
+
+    private FileDescriptor mFD;
+    private FileInputStream mFileInputStream;
+    private FileOutputStream mFileOutputStream;
 
     private static String mPort = "/dev/ttyUSB0"; //串口设置默认值
     private static int mBaudRate = 115200; //波特率默认值
@@ -106,7 +109,14 @@ public class SerialPortHelper {
      */
     public void close() {
         closeSerialPort();
-        isOpen = false;
+    }
+
+    /**
+     * 串口状态
+     * @return true:打开 false:关闭
+     */
+    public boolean isOpen() {
+        return isOpen;
     }
 
     public boolean setPort(String port) {
@@ -268,6 +278,8 @@ public class SerialPortHelper {
         sendBytes(txtArray);
     }
 
+
+
     /**
      * 设置串口打开的监听
      *
@@ -299,27 +311,8 @@ public class SerialPortHelper {
      * @return
      */
     private boolean openSerialPort(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags) {
-        mSerialPort = new SerialPort();
-        isOpen = mSerialPort.openSafe(device, baudRate, stopBits, dataBits, parity, flowCon, flags, new ISerialPortListener() {
-
-            @Override
-            public void onSuccess(File device, FileInputStream inputStream, FileOutputStream outputStream) {
-                if (null != mIOpenSerialPortListener) {
-                    mIOpenSerialPortListener.onSuccess(device);
-                }
-                mOutputStream = outputStream;
-                mInputStream = inputStream;
-                startSendThread();
-                startReceivedThread();
-            }
-
-            @Override
-            public void onFail(File device, Status status) {
-                if (null != mIOpenSerialPortListener) {
-                    mIOpenSerialPortListener.onFail(device, status);
-                }
-            }
-        });
+        // mSerialPort = new SerialPort();
+        isOpen = openSafe(device, baudRate, stopBits, dataBits, parity, flowCon, flags);
         return isOpen;
     }
 
@@ -329,11 +322,10 @@ public class SerialPortHelper {
     private void closeSerialPort() {
         stopSendThread();
         stopReceivedThread();
-        if (mSerialPort != null) {
-            mSerialPort.closeSafe();
-        }
+        closeSafe();
         mIOpenSerialPortListener = null;
         mISerialPortDataListener = null;
+        isOpen = false;
     }
 
     /**
@@ -347,9 +339,9 @@ public class SerialPortHelper {
             @Override
             public void handleMessage(@NonNull Message msg) {
                 byte[] sendBytes = (byte[]) msg.obj;
-                if (null != mOutputStream && null != sendBytes && sendBytes.length > 0) {
+                if (null != mFileOutputStream && null != sendBytes && sendBytes.length > 0) {
                     try {
-                        mOutputStream.write(sendBytes);
+                        mFileOutputStream.write(sendBytes);
                         if (null != mISerialPortDataListener) {
                             mISerialPortDataListener.onDataSend(sendBytes);
                         }
@@ -377,7 +369,7 @@ public class SerialPortHelper {
      * 开启接收消息的线程
      */
     private void startReceivedThread() {
-        mSerialPortReceivedThread = new SerialPortReceivedThread(mInputStream) {
+        mSerialPortReceivedThread = new SerialPortReceivedThread(mFileInputStream) {
             @Override
             public void onDataReceived(byte[] bytes) {
                 if (null != mISerialPortDataListener) {
@@ -396,5 +388,104 @@ public class SerialPortHelper {
             mSerialPortReceivedThread.release();
         }
     }
+
+    public boolean openSafe(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags) {
+        Log.i(TAG, String.format("SerialPort: %s: %d,%d,%d,%d,%d,%d", device.getPath(), baudRate, stopBits, dataBits, parity, flowCon, flags));
+        if (!device.canRead() || !device.canWrite()) {
+            boolean chmod777 = chmod777(device);
+            if (!chmod777) {
+                Log.e(TAG, device.getPath() + " : 没有读写权限");
+                if (null != mIOpenSerialPortListener) {
+                    mIOpenSerialPortListener.onFail(device, Status.NO_READ_WRITE_PERMISSION);
+                }
+                return false;
+            }
+        }
+        try {
+            mFD = nativeOpen(device.getAbsolutePath(), baudRate, stopBits, dataBits, parity, flowCon, flags);
+            mFileInputStream = new FileInputStream(mFD);
+            mFileOutputStream = new FileOutputStream(mFD);
+            startSendThread();
+            startReceivedThread();
+            if (null != mIOpenSerialPortListener) {
+                mIOpenSerialPortListener.onSuccess(device);
+            }
+            Log.i(TAG, device.getPath() + " : 串口已经打开");
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (null != mIOpenSerialPortListener) {
+                mIOpenSerialPortListener.onFail(device, Status.OPEN_FAIL);
+            }
+        }
+        return false;
+    }
+
+    public void closeSafe() {
+        if (null != mFD) {
+            nativeClose();
+            mFD = null;
+        }
+        if (null != mFileInputStream) {
+            try {
+                mFileInputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mFileInputStream = null;
+        }
+
+        if (null != mFileOutputStream) {
+            try {
+                mFileOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mFileOutputStream = null;
+        }
+    }
+
+    /**
+     * 检查文件权限
+     *
+     * @param device 文件
+     * @return 权限修改是否成功
+     */
+    private boolean chmod777(File device) {
+        if (null == device || !device.exists()) {
+            return false;
+        }
+        try {
+            Process su = Runtime.getRuntime().exec("/system/bin/su");
+            String cmd = "chmod 777" + device.getAbsolutePath() + "\n" + "exit\n";
+            su.getOutputStream().write(cmd.getBytes());
+            if (0 == su.waitFor() && device.canRead() && device.canWrite() && device.canExecute()) {
+                return true;
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+
+        }
+        return false;
+    }
+
+    /**
+     * 打开串口
+     *
+     * @param path 串口设备的绝对路径
+     * @param baudRate {@link BAUDRATE} 波特率
+     * @param stopBits {@link STOPB} 停止位
+     * @param dataBits {@link DATAB} 数据位
+     * @param parity {@link PARITY} 校验位
+     * @param flowCon {@link FLOWCON} 流控
+     * @param flags O_RDWR  读写方式打开 | O_NOCTTY  不允许进程管理串口 | O_NDELAY   非阻塞
+     * @return
+     */
+    private static native FileDescriptor nativeOpen(String path, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags);
+
+    /**
+     * 关闭串口
+     */
+    public native void nativeClose();
 
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.serialport.entity;
+package me.f1reking.serialportlib.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -76,7 +76,7 @@ public class Device implements Parcelable {
         this.file = (File) in.readSerializable();
     }
 
-    public static final Parcelable.Creator<Device> CREATOR = new Parcelable.Creator<Device>() {
+    public static final Creator<Device> CREATOR = new Creator<Device>() {
         @Override
         public Device createFromParcel(Parcel source) {return new Device(source);}
 

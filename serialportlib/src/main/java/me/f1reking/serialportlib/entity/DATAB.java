@@ -13,39 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.serialport.entity;
+package me.f1reking.serialportlib.entity;
 
 /**
  * @author F1ReKing
- * @date 2019/10/31 18:06
- * @Description 串口流控定义
+ * @date 2019/10/31 18:05
+ * @Description 串口数据位定义
  */
-public enum FLOWCON {
+public enum DATAB {
 
     /**
-     * 不使用流控
+     * 5位数据位
      */
-    NONE(0),
+    CS5(5),
     /**
-     * 硬件流控
+     * 6位数据位
      */
-    HARD(1),
+    CS6(6),
     /**
-     * 软件流控
+     * 7位数据位
      */
-    SOFT(2);
+    CS7(7),
+    /**
+     * 8位数据位
+     */
+    CS8(8);
 
-    int flowCon;
+    int dataBit;
 
-    FLOWCON(int flowCon) {
-        this.flowCon = flowCon;
+    DATAB(int dataBit) {
+        this.dataBit = dataBit;
     }
 
-    public int getFlowCon() {
-        return this.flowCon;
+    public int getDataBit() {
+        return this.dataBit;
     }
 
-    public static int getFlowCon(FLOWCON flowcon) {
-        return flowcon.getFlowCon();
+    public static int getDataBit(DATAB datab) {
+        return datab.getDataBit();
     }
 }
