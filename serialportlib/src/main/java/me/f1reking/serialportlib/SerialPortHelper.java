@@ -246,7 +246,7 @@ public class SerialPortHelper {
      * @param bytes 发送的字节
      * @return 发送状态 true:发送成功 false：发送失败
      */
-    private boolean sendBytes(byte[] bytes) {
+    public boolean sendBytes(byte[] bytes) {
         if (null != mSendingHandler) {
             Message message = Message.obtain();
             message.obj = bytes;
@@ -308,7 +308,6 @@ public class SerialPortHelper {
      * @return 打开状态
      */
     private boolean openSerialPort(File device, int baudRate, int stopBits, int dataBits, int parity, int flowCon, int flags) {
-        // mSerialPort = new SerialPort();
         isOpen = openSafe(device, baudRate, stopBits, dataBits, parity, flowCon, flags);
         return isOpen;
     }
