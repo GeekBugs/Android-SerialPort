@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mSerialPortHelper == null) {
             mSerialPortHelper = new SerialPortHelper();
             mSerialPortHelper.setPort("/dev/ttyUSB0");
-            mSerialPortHelper.setBaudRate(BAUDRATE.getBaudrate(BAUDRATE.B115200));
+            mSerialPortHelper.setBaudRate(120);
             mSerialPortHelper.setStopBits(STOPB.getStopBit(STOPB.B2));
             mSerialPortHelper.setDataBits(DATAB.getDataBit(DATAB.CS8));
             mSerialPortHelper.setParity(PARITY.getParity(PARITY.NONE));
