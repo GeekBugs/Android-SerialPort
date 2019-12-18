@@ -114,8 +114,7 @@ JNIEXPORT jobject JNICALL Java_me_f1reking_serialportlib_SerialPortHelper_native
 
     /* Check arguments */
     {
-//        speed = getBaudrate(baudrate);
-        speed = baudrate;
+        speed = getBaudrate(baudrate);
         if (speed == -1) {
             /* TODO: throw an exception */
             LOGE("Invalid baudrate");
