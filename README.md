@@ -23,7 +23,7 @@ Add it in your root build.gradle at the end of repositories:
 
 
 	dependencies {
-	        implementation 'com.github.F1ReKing:Android-SerialPort:1.5.0'
+	        implementation 'com.github.F1ReKing:Android-SerialPort:1.5.1'
 	}
 
 
