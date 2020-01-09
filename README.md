@@ -9,6 +9,8 @@
 
 酷安：[https://www.coolapk.com/apk/251882](https://www.coolapk.com/apk/251882)
 
+![](https://raw.githubusercontent.com/F1ReKing/Android-SerialPort/master/3.webp)
+
 ## 引入
 
 **Step 1.** Add the JitPack repository to your build file
