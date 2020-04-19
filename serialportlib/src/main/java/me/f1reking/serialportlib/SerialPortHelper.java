@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
-import androidx.annotation.NonNull;
 import me.f1reking.serialportlib.entity.BAUDRATE;
 import me.f1reking.serialportlib.entity.DATAB;
 import me.f1reking.serialportlib.entity.Device;
@@ -331,7 +330,7 @@ public class SerialPortHelper {
 
         mSendingHandler = new Handler(mSendingHandlerThread.getLooper()) {
             @Override
-            public void handleMessage(@NonNull Message msg) {
+            public void handleMessage(Message msg) {
                 byte[] sendBytes = (byte[]) msg.obj;
                 if (null != mFileOutputStream && null != sendBytes && sendBytes.length > 0) {
                     try {
