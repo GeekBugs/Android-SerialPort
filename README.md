@@ -95,8 +95,10 @@ void setIOpenSerialPortListener(IOpenSerialPortListener IOpenSerialPortListener)
 // 串口消息监听
 void setISerialPortDataListener(ISerialPortDataListener ISerialPortDataListener);
 ```
-
-
+### 7. proguard-rules 
+```
+-keep class me.f1reking.serialportlib.** {*;}
+```
 
 ## 版本更新记录
 
